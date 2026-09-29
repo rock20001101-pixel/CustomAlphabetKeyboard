@@ -19,30 +19,24 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
-
       - name: Install Gradle
         run: |
           wget -q https://services.gradle.org/distributions/gradle-8.7-bin.zip
           unzip -q gradle-8.7-bin.zip
           echo "$PWD/gradle-8.7/bin" >> "$GITHUB_PATH"
 
-      - name: Find project
-        run: |
-          echo "Files in repository:"
-          find . -maxdepth 4 -type f | head -100
-
       - name: Extract project
         run: |
           mkdir -p project
           unzip -q CustomAlphabetKeyboard-1.zip.bak -d project
-          echo "Extracted:"
-          find project -maxdepth 4 -type f
+          echo "Searching for Gradle project..."
+          find project -name settings.gradle -o -name build.gradle
 
       - name: Build APK
         run: |
-          cd project
+          PROJECT_DIR=$(dirname "$(find project -name settings.gradle -print -quit)")
+          echo "Project directory: $PROJECT_DIR"
+          cd "$PROJECT_DIR"
           gradle --no-daemon assembleDebug
 
       - name: Upload APK

@@ -28,19 +28,25 @@ jobs:
           unzip -q gradle-8.7-bin.zip
           echo "$PWD/gradle-8.7/bin" >> "$GITHUB_PATH"
 
+      - name: Find project
+        run: |
+          echo "Files in repository:"
+          find . -maxdepth 4 -type f | head -100
+
       - name: Extract project
         run: |
-          mkdir project
+          mkdir -p project
           unzip -q CustomAlphabetKeyboard-1.zip.bak -d project
-          echo "Extracted files:"
-          find project -maxdepth 3 -type f
+          echo "Extracted:"
+          find project -maxdepth 4 -type f
 
       - name: Build APK
-        working-directory: project/CustomAlphabetKeyboard
-        run: gradle --no-daemon assembleDebug
+        run: |
+          cd project
+          gradle --no-daemon assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: CustomAlphabetKeyboard-APK
-          path: project/CustomAlphabetKeyboard/app/build/outputs/apk/debug/app-debug.apk
+          path: project/**/app/build/outputs/apk/debug/app-debug.apk
